@@ -17,7 +17,7 @@ ktds MS AI 과정 7기 Repository
 --------------------------
 ## 마크다운 연습
 
-### 부제목
+### 부제목 
 
 [mcp image](./mcpjpg.jpg)
 ![mcp image](./mcpjpg.jpg)
