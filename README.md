@@ -49,7 +49,7 @@ PDF 파일을 저장할 Azure Blob Storage 계정을 생성합니다. (prokyhsto
 
 
 
-# 예시: 스토리지 계정 생성 (Storage account name은 고유해야 함)
+### 예시: 스토리지 계정 생성 (Storage account name은 고유해야 함)
 az storage account create \
   --name <스토리지-계정-이름> \
   --resource-group pro-kyh-rg \
@@ -61,7 +61,7 @@ az storage account create \
 bash
 
 
-# 예시: 컨테이너 생성
+### 예시: 컨테이너 생성
 az storage container create \
   --name pdf-documents \
   --account-name <스토리지-계정-이름> \
