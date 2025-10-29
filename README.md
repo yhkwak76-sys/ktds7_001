@@ -67,9 +67,9 @@ az storage container create \
   --account-name <스토리지-계정-이름> \
   --public-access off
 
-# 예시: 로컬 PDF 파일 업로드 (Blob Storage 컨테이너에)
-# (이 부분은 스크립트 또는 반복 명령을 통해 './data' 내 모든 PDF 파일을 업로드하도록 구성)
-# 예시: 하나의 파일 업로드
+### 예시: 로컬 PDF 파일 업로드 (Blob Storage 컨테이너에)
+### (이 부분은 스크립트 또는 반복 명령을 통해 './data' 내 모든 PDF 파일을 업로드하도록 구성)
+### 예시: 하나의 파일 업로드
 az storage blob upload \
   --container-name pdf-documents \
   --file ./data/sample.pdf \
@@ -81,7 +81,7 @@ az storage blob upload \
 bash
 
 
-# 예시: 검색 서비스 생성
+### 예시: 검색 서비스 생성
 az search service create \
   --name <검색-서비스-이름> \
   --resource-group pro-kyh-rg \
