@@ -158,6 +158,20 @@ streamlit run mvp_ktds_kyh_001.py
 
 ---
 
+## 🧱 주요 코드 구조
+
+| 함수 | 설명 |
+|------|------|
+| `get_chat_client()` | Azure OpenAI 클라이언트 초기화 |
+| `create_rag_parameters()` | RAG용 Azure Search 파라미터 생성 |
+| `get_answer()` | GPT 모델을 호출해 답변 생성 |
+| `display_chat_message()` | 채팅 메시지 UI 렌더링 |
+| `initialize_session_state()` | Streamlit 세션 상태 초기화 |
+| `reset_conversation()` | 대화 내용 초기화 |
+| `main()` | Streamlit 메인 실행 함수 |
+
+---
+
 ## 👨‍💻 개발 환경
 
 - Python 3.11+
