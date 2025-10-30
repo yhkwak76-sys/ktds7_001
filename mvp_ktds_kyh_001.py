@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Azure OpenAI RAG Chatbot - Streamlit 웹 인터페이스
-Tibero 문서 검색 및 질의응답 시스템
+AI를 활용한 기술문서 자동 요약 및 오류 분석
 """
 
 import os
@@ -27,7 +27,7 @@ API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
 
 # 페이지 설정
 st.set_page_config(
-    page_title="안녕하세요. 챗봇입니다.",
+    page_title="안녕하세요. 무엇을 도와드릴까요?",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -210,7 +210,7 @@ def main():
 
     # 헤더
     st.title("🤖 안녕하세요. 챗봇입니다.")
-    st.markdown("Tibero 데이터베이스 문서 검색 및 질의응답 시스템")
+    st.markdown("기술 문서 검색 및 질의응답 시스템")
     st.divider()
 
     # 사이드바
