@@ -12,7 +12,7 @@ ktds MS AI 과정 7기 Repository
    - https://github.com/yhkwak76-sys/ktds7_001.git
 
 
-# 🤖 Azure OpenAI RAG Chatbot (Tibero 문서 검색)
+# 🤖 Azure OpenAI RAG Chatbot (기술 문서 검색)
 
 이 프로젝트는 **Azure OpenAI**와 **Azure AI Search**를 활용한  
 **검색 기반 질의응답 시스템 (RAG: Retrieval-Augmented Generation)**입니다.  
