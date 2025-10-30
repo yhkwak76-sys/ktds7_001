@@ -326,23 +326,114 @@ CREATE TABLE EMPLOYEE (
 
 ### 오류 분석 예시
 
-```
-Q: ORA-01017 오류가 발생했습니다. 원인과 해결 방법을 알려주세요.
+#### 예시 1: 데이터 파일 오류 (Error 1020)
 
-A: ORA-01017 오류는 "invalid username/password" 오류입니다.
+```
+Q: Tibero 데이터베이스 시작 시 "Bad datafile" 오류가 발생합니다. 어떻게 해결하나요?
+
+A: Error 1020은 "Bad datafile %s" 오류로, 데이터 파일이 다른 데이터베이스의 것일 때 발생합니다.
 
 원인:
-1. 잘못된 사용자명 또는 비밀번호
-2. 계정 잠김 상태
-3. 비밀번호 만료
+1. 데이터 파일이 다른 Tibero 인스턴스에서 가져온 것
+2. 데이터 파일 경로가 잘못 설정됨
+3. 백업 복원 과정에서 잘못된 파일 사용
 
 해결 방법:
-1. 사용자명과 비밀번호 재확인
-2. 계정 상태 확인: SELECT * FROM DBA_USERS WHERE USERNAME = '...';
-3. 계정 잠김 해제: ALTER USER ... ACCOUNT UNLOCK;
-4. 비밀번호 재설정: ALTER USER ... IDENTIFIED BY new_password;
+1. 데이터 파일 확인:
+   - 컨트롤 파일에 등록된 데이터 파일 경로 확인
+   - SELECT NAME, STATUS FROM V$DATAFILE;
+   
+2. 올바른 데이터 파일로 교체:
+   - 정확한 데이터베이스의 백업에서 복원
+   - 데이터 파일 경로를 올바르게 수정
+   
+3. 컨트롤 파일 재생성 (필요시):
+   - 백업된 컨트롤 파일로 복원
+   - 또는 CREATE CONTROLFILE 스크립트 실행
 
-[참고 문서: Tibero Error Messages Manual]
+[참고 문서: Tibero Error Reference Guide - Error 1020]
+```
+
+#### 예시 2: SQL 구문 오류 (Error 7001)
+
+```
+Q: SQL 실행 시 "General syntax error" 오류가 발생합니다. 원인이 무엇인가요?
+
+A: Error 7001은 SQL 문법 오류를 나타내며, SQL 구문이 올바르지 않을 때 발생합니다.
+
+원인:
+1. SQL 키워드 오타 또는 잘못된 사용
+2. 괄호, 쉼표 등 구두점 누락 또는 위치 오류
+3. 테이블명, 컬럼명 등의 식별자 오류
+4. Tibero에서 지원하지 않는 SQL 문법 사용
+
+해결 방법:
+1. SQL 구문 검토:
+   -- 잘못된 예
+   SELCT * FROM employees;  -- SELECT 오타
+   
+   -- 올바른 예
+   SELECT * FROM employees;
+
+2. 괄호 및 구두점 확인:
+   -- 잘못된 예
+   CREATE TABLE test (id NUMBER(10) name VARCHAR2(50));
+   
+   -- 올바른 예
+   CREATE TABLE test (id NUMBER(10), name VARCHAR2(50));
+
+3. Tibero SQL 레퍼런스 가이드 참조:
+   - Tibero 7 지원 문법 확인
+   - 표준 SQL과의 차이점 확인
+
+4. 에러 메시지의 위치 정보 활용:
+   - 오류 발생 라인과 컬럼 위치 확인
+
+[참고 문서: Tibero SQL Reference Guide]
+```
+
+#### 예시 3: 연결 오류 (Error 2082)
+
+```
+Q: 클라이언트에서 Tibero 접속 시 "Invalid socket file descriptor" 오류가 발생합니다.
+
+A: Error 2082는 소켓 파일 디스크립터가 유효하지 않을 때 발생하는 네트워크 연결 오류입니다.
+
+원인:
+1. 네트워크 연결이 비정상적으로 종료됨
+2. 방화벽에서 Tibero 포트(기본 8629) 차단
+3. Tibero 서버가 중지되었거나 응답하지 않음
+4. 클라이언트와 서버 간 네트워크 불안정
+
+해결 방법:
+1. 서버 연결 상태 확인:
+   -- Linux/Unix
+   netstat -an | grep 8629
+   
+   -- 또는
+   ps -ef | grep tbsvr
+
+2. 방화벽 설정 확인:
+   -- 방화벽에서 Tibero 포트 허용
+   firewall-cmd --add-port=8629/tcp --permanent
+   firewall-cmd --reload
+
+3. tbdsn.tbr 파일 확인:
+   -- 올바른 호스트와 포트 설정 확인
+   (TIBERO_SID=(HOST=server_ip)(PORT=8629)(DB_NAME=tibero))
+
+4. 리스너 상태 확인:
+   tblistener status
+   
+   -- 리스너 재시작 (필요시)
+   tblistener stop
+   tblistener start
+
+5. 네트워크 연결 테스트:
+   ping server_ip
+   telnet server_ip 8629
+
+[참고 문서: Tibero Installation and Administration Guide]
 ```
 
 ## 📊 성능 최적화
