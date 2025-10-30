@@ -1,3 +1,21 @@
-git add .
-git commit -m "chore: Update for Azure deployment config. Triggering CI/CD."
-git push origin main
+# Azure SDK
+azure-identity==1.15.0
+azure-mgmt-storage==21.1.0
+azure-storage-blob==12.19.0
+azure-core==1.30.0
+azure-search-documents==11.4.0
+
+# OpenAI
+openai==1.12.0
+
+# PDF Processing
+PyPDF2==3.0.1
+
+# Environment Variables
+python-dotenv==1.0.1
+
+# Web Framework (for Streamlit app)
+streamlit==1.31.0
+
+# Additional dependencies
+typing-extensions==4.9.0
