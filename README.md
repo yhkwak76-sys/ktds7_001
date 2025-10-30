@@ -34,10 +34,10 @@ Azure OpenAI, Cognitive Search, Blob Storage를 활용하여 PDF 매뉴얼을 �
 ---
 
 ## 🏗️ 시스템 구성
-A[📄 PDF 문서] -->|Upload| B[☁️ Azure Blob Storage]
-B -->|Extract + Chunk + Embed| C[🔍 Azure AI Search Index]
-C -->|Vector Query| D[🤖 Azure OpenAI (GPT-4)]
-D -->|Response| E[💬 Streamlit Chat UI]
+- A[📄 PDF 문서] -->|Upload| B[☁️ Azure Blob Storage]
+- B -->|Extract + Chunk + Embed| C[🔍 Azure AI Search Index]
+- C -->|Vector Query| D[🤖 Azure OpenAI (GPT-4)]
+- D -->|Response| E[💬 Streamlit Chat UI]
 
 
 ---
