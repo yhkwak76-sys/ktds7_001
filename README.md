@@ -97,7 +97,8 @@ Azure OpenAI와 Azure AI Search를 활용한 Tibero 데이터베이스 기술문
          │
          ▼
 ┌─────────────────┐
-│   Streamlit UI   │
+│ Azure Web App   │
+│ (Streamlit UI)  │
 └────────┬────────┘
          │
          ▼
