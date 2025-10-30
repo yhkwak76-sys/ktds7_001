@@ -20,9 +20,9 @@ ktds MS AI 과정 7기 Repository
 Azure OpenAI, Azure AI Search, Blob Storage를 활용하여 PDF 매뉴얼을 인덱싱하고, Streamlit 웹 인터페이스를 통해 자연어로 질의응답을 수행합니다.
 Azure OpenAI와 Azure AI Search를 활용한 Tibero 데이터베이스 기술문서 검색 및 질의응답 챗봇입니다.
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-red.svg)
-![Azure](https://img.shields.io/badge/Azure-OpenAI-0078D4.svg)
+![Python](https://img.shields.io/badge/Python-3.13+-blue.svg)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.5+-red.svg)
+![Azure](https://img.shields.io/badge/Azure--OpenAI-2.6.1-0078D4.svg)
 
 ## 📋 목차
 
