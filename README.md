@@ -12,16 +12,12 @@ ktds MS AI 과정 7기 Repository
    - https://github.com/yhkwak76-sys/ktds7_001.git
 
 
-# Azure OpenAI RAG Chatbot (기술 문서 검색)
+---
 
+# AI를 활용한 기술문서 자동 요약 및 오류 분석
 이 프로젝트는 **Azure OpenAI**와 **Azure AI Search**를 활용한  
 **검색 기반 질의응답 시스템 (RAG: Retrieval-Augmented Generation)**입니다.  
 Azure OpenAI, Azure AI Search, Blob Storage를 활용하여 PDF 매뉴얼을 인덱싱하고, Streamlit 웹 인터페이스를 통해 자연어로 질의응답을 수행합니다.
-
----
-
-# 🤖 AI 기반 기술문서 자동 요약 및 오류 분석 시스템
-
 Azure OpenAI와 Azure AI Search를 활용한 Tibero 데이터베이스 기술문서 검색 및 질의응답 챗봇입니다.
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
