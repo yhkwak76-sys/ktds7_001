@@ -10,8 +10,8 @@ ktds MS AI 과정 7기 Repository
    - AI가 자동으로 핵심 개념 요약, 주요 오류/원인 설명, 해결 가이드 생성
 4. 깃허브 링크
    - https://github.com/yhkwak76-sys/ktds7_001.git
-
-
+5. 
+   - pro-kyh-003-web-cwdrbshrcufzeehu.koreacentral-01.azurewebsites.net
 ---
 
 # AI를 활용한 기술문서 자동 요약 및 오류 분석
@@ -38,7 +38,8 @@ Azure OpenAI와 Azure AI Search를 활용한 Tibero 데이터베이스 기술문
 
 ## 🎯 프로젝트 개요
 
-이 프로젝트는 Tibero 데이터베이스 관련 기술문서, 로그, 매뉴얼을 AI가 자동으로 분석하여 다음을 제공합니다:
+이 프로젝트는 기술문서, 로그, 메뉴얼을 AI가 자동으로 분석하여 다음을 제공합니다:
+(회사 자료를 사용할 수 없어 Tibero 데이터베이스 관련 문서를 활용 진행하였습니다.)
 
 - ✅ 핵심 개념 자동 요약
 - ✅ 주요 오류 원인 설명
@@ -305,7 +306,7 @@ remove_duplicate_citations()
 ```
 Q: Tibero에서 테이블 생성 방법을 알려주세요.
 
-A: Tibero에서 테이블을 생성하는 기본 구문은 다음과 같습니다:
+A: Tibero에서 테이블을 생성하는 기본적인 방법은 SQL의 CREATE TABLE 문을 사용하는 것입니다. 아래는 Tibero에서 테이블을 생성하는 일반적인 예시입니다.
 
 CREATE TABLE 테이블명 (
     컬럼명1 데이터타입 [제약조건],
@@ -313,15 +314,17 @@ CREATE TABLE 테이블명 (
     ...
 );
 
-예를 들어, 사원 테이블을 생성한다면:
+예를 들어, 직원 정보를 담는 EMPLOYEE 테이블을 생성할 때는 다음과 같이 작성할 수 있습니다.
 
 CREATE TABLE EMPLOYEE (
-    EMP_ID NUMBER(6) PRIMARY KEY,
+    EMP_ID NUMBER(10) PRIMARY KEY,
     EMP_NAME VARCHAR2(50) NOT NULL,
-    HIRE_DATE DATE DEFAULT SYSDATE
+    DEPT_ID NUMBER(10),
+    JOIN_DATE DATE,
+    SALARY NUMBER(15, 2)
 );
 
-[참고 문서: Tibero SQL Reference Guide]
+[참고 문서: Tibero_7_JDBC-Development-Guide]
 ```
 
 ### 오류 분석 예시
@@ -331,27 +334,27 @@ CREATE TABLE EMPLOYEE (
 ```
 Q: Tibero 데이터베이스 시작 시 "Bad datafile" 오류가 발생합니다. 어떻게 해결하나요?
 
-A: Error 1020은 "Bad datafile %s" 오류로, 데이터 파일이 다른 데이터베이스의 것일 때 발생합니다.
+A: 해결 방법은 다음과 같습니다:
 
-원인:
-1. 데이터 파일이 다른 Tibero 인스턴스에서 가져온 것
-2. 데이터 파일 경로가 잘못 설정됨
-3. 백업 복원 과정에서 잘못된 파일 사용
+데이터 파일 경로 및 권한 확인
+데이터 파일이 지정된 경로에 실제로 존재하는지 확인하고, 해당 파일에 대해 읽기/쓰기 권한이 올바르게 설정되어 있는지 점검하세요 [doc1][doc2].
 
-해결 방법:
-1. 데이터 파일 확인:
-   - 컨트롤 파일에 등록된 데이터 파일 경로 확인
-   - SELECT NAME, STATUS FROM V$DATAFILE;
-   
-2. 올바른 데이터 파일로 교체:
-   - 정확한 데이터베이스의 백업에서 복원
-   - 데이터 파일 경로를 올바르게 수정
-   
-3. 컨트롤 파일 재생성 (필요시):
-   - 백업된 컨트롤 파일로 복원
-   - 또는 CREATE CONTROLFILE 스크립트 실행
+데이터 파일 손상 여부 점검
+데이터 파일이 손상되었거나 잘못된 파일이 포함되어 있을 수 있으므로, 백업본을 이용해 복구하거나 미디어 복구(Media Recovery)를 수행하는 것이 필요할 수 있습니다 .
 
-[참고 문서: Tibero Error Reference Guide - Error 1020]
+컨트롤 파일과 데이터 파일 호환성 확인
+컨트롤 파일과 데이터 파일 간의 버전 및 상태가 일치하는지 확인하고, 필요 시 컨트롤 파일을 재생성하는 방안을 고려하세요 [doc3].
+
+테이블스페이스 및 데이터 파일 상태 점검
+테이블스페이스와 데이터 파일 상태를 점검하여 이상이 없는지 확인합니다 [doc4].
+
+이와 같은 점검과 복구 작업 후 데이터베이스를 다시 시작하면 "Bad datafile" 오류가 해결될 수 있습니다.
+만약 문제가 계속된다면 Tibero 기술 지원에 문의하는 것이 좋습니다.
+
+참고: 데이터 파일 관련 오류는 Tibero 에러 가이드에서 자세히 다루고 있으니, 오류 코드 및 메시지를 참고하여 추가 조치를 취하시기 바랍니다.
+
+[참고 문서: Tibero_7_Error-Reference-Guide]
+[참고 문서: Tibero_7_JDBC-Development-Guide]
 ```
 
 #### 예시 2: SQL 구문 오류 (Error 7001)
@@ -359,37 +362,19 @@ A: Error 1020은 "Bad datafile %s" 오류로, 데이터 파일이 다른 데이�
 ```
 Q: SQL 실행 시 "General syntax error" 오류가 발생합니다. 원인이 무엇인가요?
 
-A: Error 7001은 SQL 문법 오류를 나타내며, SQL 구문이 올바르지 않을 때 발생합니다.
+A: Tibero 데이터베이스에서 SQL 실행 시 "General syntax error" 오류(에러 코드 7001)는 SQL 문법 오류가 발생했음을 의미합니다.
 
-원인:
-1. SQL 키워드 오타 또는 잘못된 사용
-2. 괄호, 쉼표 등 구두점 누락 또는 위치 오류
-3. 테이블명, 컬럼명 등의 식별자 오류
-4. Tibero에서 지원하지 않는 SQL 문법 사용
+원인
+SQL 문에 문법적인 오류가 존재하는 경우 발생합니다. 예를 들어, 괄호 누락, 키워드 오타, 잘못된 구문 등이 원인이 될 수 있습니다.
 
-해결 방법:
-1. SQL 구문 검토:
-   -- 잘못된 예
-   SELCT * FROM employees;  -- SELECT 오타
-   
-   -- 올바른 예
-   SELECT * FROM employees;
+해결 방법
 
-2. 괄호 및 구두점 확인:
-   -- 잘못된 예
-   CREATE TABLE test (id NUMBER(10) name VARCHAR2(50));
-   
-   -- 올바른 예
-   CREATE TABLE test (id NUMBER(10), name VARCHAR2(50));
+SQL 문법을 꼼꼼히 확인하여 오류가 없는지 점검하세요.
+특히 괄호, 콤마, 키워드 사용법을 재검토하시기 바랍니다.
+Tibero의 SQL 문법 가이드에 맞게 문장을 작성했는지 확인하세요.
+이 오류는 문법적 문제이므로, SQL 문 전체를 다시 검토하여 수정하면 해결됩니다 [doc1].
 
-3. Tibero SQL 레퍼런스 가이드 참조:
-   - Tibero 7 지원 문법 확인
-   - 표준 SQL과의 차이점 확인
-
-4. 에러 메시지의 위치 정보 활용:
-   - 오류 발생 라인과 컬럼 위치 확인
-
-[참고 문서: Tibero SQL Reference Guide]
+[참고 문서: Tibero_7_Error-Reference-Guide]
 ```
 
 #### 예시 3: 연결 오류 (Error 2082)
@@ -397,43 +382,24 @@ A: Error 7001은 SQL 문법 오류를 나타내며, SQL 구문이 올바르지 �
 ```
 Q: 클라이언트에서 Tibero 접속 시 "Invalid socket file descriptor" 오류가 발생합니다.
 
-A: Error 2082는 소켓 파일 디스크립터가 유효하지 않을 때 발생하는 네트워크 연결 오류입니다.
+A: 원인 및 해결 방법은 다음과 같습니다:
 
-원인:
-1. 네트워크 연결이 비정상적으로 종료됨
-2. 방화벽에서 Tibero 포트(기본 8629) 차단
-3. Tibero 서버가 중지되었거나 응답하지 않음
-4. 클라이언트와 서버 간 네트워크 불안정
+서버와의 네트워크 연결 확인
 
-해결 방법:
-1. 서버 연결 상태 확인:
-   -- Linux/Unix
-   netstat -an | grep 8629
-   
-   -- 또는
-   ps -ef | grep tbsvr
+서버가 정상적으로 구동 중인지 확인하고, 네트워크 연결 상태(방화벽, 라우터 설정 등)를 점검하세요.
+클라이언트와 서버 간의 통신이 차단되지 않았는지 확인해야 합니다.
+클라이언트와 서버 설정 점검
 
-2. 방화벽 설정 확인:
-   -- 방화벽에서 Tibero 포트 허용
-   firewall-cmd --add-port=8629/tcp --permanent
-   firewall-cmd --reload
+서버의 소켓 파일 디스크립터가 올바르게 할당되었는지, 서버 프로세스가 정상인지 확인합니다.
+클라이언트 쪽에서 서버 연결 설정이 올바른지, 포트 번호 및 IP 주소가 정확한지 검토하세요.
+Tibero 에러 가이드 참고
 
-3. tbdsn.tbr 파일 확인:
-   -- 올바른 호스트와 포트 설정 확인
-   (TIBERO_SID=(HOST=server_ip)(PORT=8629)(DB_NAME=tibero))
+"Invalid socket file descriptor" 오류는 Tibero 내부에서 소켓 파일 디스크립터가 유효하지 않을 때 발생합니다.
+이 오류가 계속 발생하면 서버 및 클라이언트 환경을 재점검하거나 Tibero 기술 지원에 문의하는 것이 좋습니다.
+요약하면, 이 오류는 서버와 클라이언트 간의 연결 문제 또는 네트워크 설정 문제로 인해 발생하므로 네트워크 상태와 설정을 점검하는 것이 우선입니다.
 
-4. 리스너 상태 확인:
-   tblistener status
-   
-   -- 리스너 재시작 (필요시)
-   tblistener stop
-   tblistener start
-
-5. 네트워크 연결 테스트:
-   ping server_ip
-   telnet server_ip 8629
-
-[참고 문서: Tibero Installation and Administration Guide]
+[참고 문서: Tibero_7_Error-Reference-Guide]
+[참고 문서: Tibero_7_JDBC-Development-Guide]
 ```
 
 ## 📊 성능 최적화
