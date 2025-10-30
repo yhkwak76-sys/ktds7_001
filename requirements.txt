@@ -1,14 +1,14 @@
 # Azure SDK
-azure-identity==1.15.0
-azure-mgmt-storage==21.1.0
-azure-storage-blob==12.19.0
-azure-search-documents==11.4.0
+azure-identity
+azure-mgmt-storage
+azure-storage-blob
+azure-search-documents
 
 # OpenAI & PDF
-openai==1.54.0
+openai
 
 # Web Framework
-streamlit==1.50.0
+streamlit
 
 # 환경 변수
-python-dotenv==1.0.1
+python-dotenv
