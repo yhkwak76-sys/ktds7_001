@@ -3,10 +3,11 @@
 """
 Azure OpenAI RAG Chatbot - Streamlit 웹 인터페이스
 Tibero 문서 검색 및 질의응답 시스템
-(Session State 방식 - @st.cache_resource 제거)
+(Azure Web App 환경 최적화 버전)
 """
 
 import os
+import sys
 import streamlit as st
 from datetime import datetime
 from dotenv import load_dotenv
@@ -123,25 +124,65 @@ def get_answer(
         return None, [], str(e)
 
 
+def clear_azure_proxy_settings():
+    """Azure Web App 환경의 프록시 설정 완전 제거"""
+    # 모든 프록시 관련 환경 변수 제거
+    proxy_vars = [
+        'HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy',
+        'NO_PROXY', 'no_proxy', 'ALL_PROXY', 'all_proxy',
+        # Azure 특화 프록시 변수
+        'HTTPS_PROXY_REQUEST_FULLURI',
+        'HTTP_PROXY_REQUEST_FULLURI',
+    ]
+    
+    for var in proxy_vars:
+        os.environ.pop(var, None)
+    
+    # Azure 서비스는 프록시 제외
+    os.environ['NO_PROXY'] = '*.azure.com,*.microsoft.com,*.windows.net,*.openai.azure.com'
+
+
 def initialize_session_state():
-    """세션 상태 초기화 - Session State 방식"""
+    """세션 상태 초기화 - Azure Web App 환경 최적화"""
     
     # 채팅 클라이언트 초기화 (한 번만 생성)
     if "chat_client" not in st.session_state:
-        # 프록시 환경 변수 제거
-        env_vars_to_remove = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy']
-        for var in env_vars_to_remove:
-            if var in os.environ:
-                del os.environ[var]
+        import httpx
         
-        # Azure OpenAI 클라이언트 생성
-        st.session_state.chat_client = AzureOpenAI(
-            api_key=AZURE_OPENAI_API_KEY,
-            azure_endpoint=AZURE_OPENAI_ENDPOINT,
-            api_version=API_VERSION,
-            timeout=60.0,
-        )
-        # print("✅ Azure OpenAI 클라이언트 생성 완료")
+        # Azure 프록시 설정 제거
+        clear_azure_proxy_settings()
+        
+        try:
+            # httpx 클라이언트 생성 (Azure 환경 최적화)
+            http_client = httpx.Client(
+                timeout=httpx.Timeout(
+                    timeout=60.0,
+                    connect=10.0,
+                    read=60.0,
+                ),
+                proxies={},  # 빈 딕셔너리로 모든 프록시 완전 비활성화
+                follow_redirects=True,
+                verify=True,  # Azure에서는 SSL 검증 유지
+                limits=httpx.Limits(
+                    max_keepalive_connections=5,
+                    max_connections=10,
+                ),
+            )
+            
+            # Azure OpenAI 클라이언트 생성
+            st.session_state.chat_client = AzureOpenAI(
+                api_key=AZURE_OPENAI_API_KEY,
+                azure_endpoint=AZURE_OPENAI_ENDPOINT,
+                api_version=API_VERSION,
+                http_client=http_client,
+            )
+            
+            st.session_state.client_initialized = True
+            
+        except Exception as e:
+            st.error(f"❌ Azure OpenAI 클라이언트 초기화 실패: {str(e)}")
+            st.session_state.client_initialized = False
+            raise
     
     # 메시지 초기화
     if "messages" not in st.session_state:
@@ -207,14 +248,58 @@ def display_chat_message(
                         st.markdown(f"   🔗 [{url}]({url})")
 
 
+def show_azure_debug_info():
+    """Azure 환경 디버깅 정보 표시"""
+    with st.sidebar.expander("🔍 Azure 환경 디버깅"):
+        st.subheader("프록시 환경 변수")
+        proxy_vars = [
+            'HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy',
+            'NO_PROXY', 'no_proxy',
+        ]
+        
+        for var in proxy_vars:
+            value = os.environ.get(var, "❌ 설정 안 됨")
+            if value == "❌ 설정 안 됨":
+                st.success(f"{var}: {value}")
+            else:
+                st.warning(f"{var}: {value}")
+        
+        st.divider()
+        st.subheader("Azure 환경 변수")
+        azure_vars = [
+            'WEBSITE_HOSTNAME', 'WEBSITE_SITE_NAME',
+            'WEBSITE_RESOURCE_GROUP', 'WEBSITE_INSTANCE_ID',
+        ]
+        
+        for var in azure_vars:
+            value = os.environ.get(var, "설정 안 됨")
+            st.text(f"{var}: {value}")
+        
+        st.divider()
+        st.subheader("클라이언트 상태")
+        if st.session_state.get("client_initialized", False):
+            st.success("✅ 클라이언트 초기화 완료")
+        else:
+            st.error("❌ 클라이언트 초기화 실패")
+
+
 def main():
     """메인 함수"""
     # 세션 상태 초기화 (여기서 클라이언트 생성)
-    initialize_session_state()
+    try:
+        initialize_session_state()
+    except Exception as e:
+        st.error(f"초기화 중 오류 발생: {str(e)}")
+        st.stop()
 
     # 헤더
     st.title("🤖 안녕하세요. 챗봇입니다.")
     st.markdown("Tibero 데이터베이스 문서 검색 및 질의응답 시스템")
+    
+    # Azure Web App 환경 표시
+    if os.environ.get('WEBSITE_HOSTNAME'):
+        st.info(f"🌐 Azure Web App: {os.environ.get('WEBSITE_HOSTNAME')}")
+    
     st.divider()
 
     # 사이드바
@@ -270,6 +355,12 @@ def main():
             st.text(f"Embedding: {AZURE_DEPLOYMENT_EMBEDDING_NAME}")
             st.text(f"Search Index: {INDEX_NAME}")
             st.text(f"API Version: {API_VERSION}")
+            st.text(f"Python: {sys.version.split()[0]}")
+
+        st.divider()
+
+        # Azure 디버깅 정보
+        show_azure_debug_info()
 
         st.divider()
 
@@ -325,6 +416,11 @@ def main():
 
     # 사용자 입력
     if prompt := st.chat_input("질문을 입력하세요..."):
+        # 클라이언트 초기화 확인
+        if not st.session_state.get("client_initialized", False):
+            st.error("❌ 클라이언트가 초기화되지 않았습니다. 페이지를 새로고침하세요.")
+            st.stop()
+        
         st.session_state.message_counter += 1
         user_message_id = st.session_state.message_counter
 
@@ -345,7 +441,7 @@ def main():
         # 답변 생성 (Session State에서 클라이언트 가져오기)
         with st.spinner("🤔 답변 생성 중..."):
             answer, citations, error = get_answer(
-                st.session_state.chat_client,  # Session State에서 사용
+                st.session_state.chat_client,
                 st.session_state.messages,
                 prompt,
                 temperature=temperature,
