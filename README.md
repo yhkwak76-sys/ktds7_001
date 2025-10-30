@@ -16,7 +16,7 @@ ktds MS AI 과정 7기 Repository
 
 이 프로젝트는 **Azure OpenAI**와 **Azure AI Search**를 활용한  
 **검색 기반 질의응답 시스템 (RAG: Retrieval-Augmented Generation)**입니다.  
-Azure OpenAI, Cognitive Search, Blob Storage를 활용하여 PDF 매뉴얼을 인덱싱하고, Streamlit 웹 인터페이스를 통해 자연어로 질의응답을 수행합니다.
+Azure OpenAI, Azure AI Search, Blob Storage를 활용하여 PDF 매뉴얼을 인덱싱하고, Streamlit 웹 인터페이스를 통해 자연어로 질의응답을 수행합니다.
 
 ---
 
