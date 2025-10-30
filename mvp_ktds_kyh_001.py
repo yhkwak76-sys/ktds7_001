@@ -3,7 +3,6 @@
 """
 Azure OpenAI RAG Chatbot - Streamlit 웹 인터페이스
 Tibero 문서 검색 및 질의응답 시스템
-(Session State 방식 - @st.cache_resource 제거)
 """
 
 import os
@@ -33,6 +32,16 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+
+@st.cache_resource
+def get_chat_client():
+    """Azure OpenAI 클라이언트 생성 (캐시)"""
+    return AzureOpenAI(
+        api_key=AZURE_OPENAI_API_KEY,
+        azure_endpoint=AZURE_OPENAI_ENDPOINT,
+        api_version=API_VERSION,
+    )
 
 
 def create_system_message():
@@ -124,43 +133,15 @@ def get_answer(
 
 
 def initialize_session_state():
-    """세션 상태 초기화 - Session State 방식"""
-    
-    # 채팅 클라이언트 초기화 (한 번만 생성)
-    if "chat_client" not in st.session_state:
-        import httpx
-        
-        # 모든 프록시 관련 환경 변수 제거
-        proxy_vars = [
-            'HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy',
-            'NO_PROXY', 'no_proxy', 'ALL_PROXY', 'all_proxy'
-        ]
-        for var in proxy_vars:
-            os.environ.pop(var, None)
-        
-        # 프록시 없이 httpx 클라이언트 생성
-        http_client = httpx.Client(
-            timeout=60.0,
-            proxies=None,  # 명시적으로 프록시 비활성화
-            follow_redirects=True,
-        )
-        
-        # Azure OpenAI 클라이언트 생성
-        st.session_state.chat_client = AzureOpenAI(
-            api_key=AZURE_OPENAI_API_KEY,
-            azure_endpoint=AZURE_OPENAI_ENDPOINT,
-            api_version=API_VERSION,
-            http_client=http_client,
-        )
-        # print("✅ Azure OpenAI 클라이언트 생성 완료")
-    
-    # 메시지 초기화
+    """세션 상태 초기화"""
     if "messages" not in st.session_state:
         st.session_state.messages = [create_system_message()]
 
-    # 채팅 히스토리 초기화
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
+
+    if "chat_client" not in st.session_state:
+        st.session_state.chat_client = get_chat_client()
 
     # 메시지 ID 카운터 추가
     if "message_counter" not in st.session_state:
@@ -185,6 +166,7 @@ def remove_duplicate_citations(citations):
 
     for citation in citations:
         title = citation.get("title", "제목 없음")
+        # 제목이 이미 본 것이 아니면 추가
         if title not in seen_titles:
             seen_titles.add(title)
             unique_citations.append(citation)
@@ -201,14 +183,17 @@ def display_chat_message(
     with st.chat_message(role, avatar=avatar):
         st.markdown(content)
 
+        # 타임스탬프 표시
         if timestamp:
             st.caption(f"🕐 {timestamp}")
 
+        # 인용 정보 표시 (assistant 메시지에만, 중복 제거, 항상 닫힌 상태)
+        # 중요: user 메시지에는 citations를 표시하지 않음!
         if role == "assistant" and citations:
             unique_citations = remove_duplicate_citations(citations)
             with st.expander(
                 f"📚 참고 문서 ({len(unique_citations)}개)",
-                expanded=False,
+                expanded=False,  # 항상 닫힌 상태로 표시
             ):
                 for i, citation in enumerate(unique_citations, 1):
                     title = citation.get("title", "제목 없음")
@@ -220,7 +205,7 @@ def display_chat_message(
 
 def main():
     """메인 함수"""
-    # 세션 상태 초기화 (여기서 클라이언트 생성)
+    # 세션 상태 초기화
     initialize_session_state()
 
     # 헤더
@@ -324,39 +309,44 @@ def main():
 
     # 채팅 히스토리 표시
     for i, chat in enumerate(st.session_state.chat_history):
+        # 중요: user 메시지는 citations를 None으로 강제!
         chat_citations = chat.get("citations") if chat["role"] == "assistant" else None
 
         display_chat_message(
             role=chat["role"],
             content=chat["content"],
             timestamp=chat.get("timestamp"),
-            citations=chat_citations,
+            citations=chat_citations,  # user는 항상 None, assistant만 citations
             message_id=chat.get("message_id", i),
         )
 
     # 사용자 입력
     if prompt := st.chat_input("질문을 입력하세요..."):
+        # 메시지 ID 증가
         st.session_state.message_counter += 1
         user_message_id = st.session_state.message_counter
 
+        # 사용자 메시지 표시 (citations=None, 참고 문서 없음!)
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         display_chat_message(
             "user", prompt, timestamp, citations=None, message_id=user_message_id
         )
 
+        # 채팅 히스토리에 추가 (citations 없이!)
         st.session_state.chat_history.append(
             {
                 "role": "user",
                 "content": prompt,
                 "timestamp": timestamp,
                 "message_id": user_message_id,
+                # citations 필드 없음!
             }
         )
 
-        # 답변 생성 (Session State에서 클라이언트 가져오기)
+        # 답변 생성
         with st.spinner("🤔 답변 생성 중..."):
             answer, citations, error = get_answer(
-                st.session_state.chat_client,  # Session State에서 사용
+                st.session_state.chat_client,
                 st.session_state.messages,
                 prompt,
                 temperature=temperature,
@@ -369,28 +359,34 @@ def main():
         if error:
             st.error(f"❌ 오류 발생: {error}")
         else:
+            # 메시지 ID 증가
             st.session_state.message_counter += 1
             assistant_message_id = st.session_state.message_counter
 
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # assistant 메시지만 citations 포함
             display_chat_message(
                 "assistant", answer, timestamp, citations, assistant_message_id
             )
 
+            # 채팅 히스토리에 추가 (citations 포함!)
             st.session_state.chat_history.append(
                 {
                     "role": "assistant",
                     "content": answer,
                     "timestamp": timestamp,
-                    "citations": citations,
+                    "citations": citations,  # assistant만 citations 있음!
                     "message_id": assistant_message_id,
                 }
             )
 
+    # 빈 공간 (스크롤을 위해)
     st.write("")
     st.write("")
 
+    # 푸터
     st.divider()
+    # st.caption("🔒 Powered by Azure OpenAI & Azure Cognitive Search")
 
 
 if __name__ == "__main__":
