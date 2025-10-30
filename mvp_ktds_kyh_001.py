@@ -37,10 +37,17 @@ st.set_page_config(
 @st.cache_resource
 def get_chat_client():
     """Azure OpenAI 클라이언트 생성 (캐시)"""
+    # 프록시 환경 변수 제거 (문제 해결)
+    env_vars_to_remove = ["HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"]
+    for var in env_vars_to_remove:
+        if var in os.environ:
+            del os.environ[var]
+
     return AzureOpenAI(
         api_key=AZURE_OPENAI_API_KEY,
         azure_endpoint=AZURE_OPENAI_ENDPOINT,
         api_version=API_VERSION,
+        timeout=60.0,  # 타임아웃 명시적 설정
     )
 
 
