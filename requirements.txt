@@ -1,0 +1,3 @@
+git add .
+git commit -m "chore: Update for Azure deployment config. Triggering CI/CD."
+git push origin main
