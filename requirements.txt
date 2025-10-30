@@ -2,20 +2,14 @@
 azure-identity==1.15.0
 azure-mgmt-storage==21.1.0
 azure-storage-blob==12.19.0
-azure-core==1.30.0
 azure-search-documents==11.4.0
 
-# OpenAI
+# OpenAI & PDF
 openai==1.12.0
-
-# PDF Processing
 PyPDF2==3.0.1
 
-# Environment Variables
-python-dotenv==1.0.1
-
-# Web Framework (for Streamlit app)
+# Web Framework
 streamlit==1.31.0
 
-# Additional dependencies
-typing-extensions==4.9.0
+# 환경 변수
+python-dotenv==1.0.1
