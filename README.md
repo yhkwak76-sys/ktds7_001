@@ -11,7 +11,7 @@ ktds MS AI 과정 7기 Repository
 4. 깃허브 링크
    - https://github.com/yhkwak76-sys/ktds7_001.git
 5. Default domain
-   - [domain](pro-kyh-003-web-cwdrbshrcufzeehu.koreacentral-01.azurewebsites.net)
+   - [domain](https://pro-kyh-003-web-cwdrbshrcufzeehu.koreacentral-01.azurewebsites.net/)
 ---
 
 # AI를 활용한 기술문서 자동 요약 및 오류 분석
