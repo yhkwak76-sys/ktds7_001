@@ -84,6 +84,7 @@ Azure OpenAI와 Azure AI Search를 활용한 Tibero 데이터베이스 기술문
 
 ### Frontend
 - **Streamlit**: 웹 인터페이스 프레임워크
+- **Azure Web App**: 클라우드 기반 웹 애플리케이션 호스팅
 
 ### Document Processing
 - **PDF 처리**: PDF 텍스트 추출
