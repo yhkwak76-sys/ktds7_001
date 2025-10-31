@@ -78,7 +78,7 @@ Azure OpenAI와 Azure AI Search를 활용한 Tibero 데이터베이스 기술문
 - **Azure Storage Account**: 문서 저장 (Blob Storage)
 
 ### Backend
-- **Python 3.8+**: 메인 프로그래밍 언어
+- **Python 3.13+**: 메인 프로그래밍 언어
 - **OpenAI Python SDK**: Azure OpenAI API 연동
 - **python-dotenv**: 환경 변수 관리
 
